@@ -7,25 +7,214 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="favicon-32.png">
 <link rel="apple-touch-icon" href="favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500&family=JetBrains+Mono:wght@400&display=optional">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
-    width: 100%; height: 100%;
+    width: 100%;
+    min-height: 100vh;
     background: #000000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    color: #e8f4ff;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
   }
-  img {
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 1rem 0.5rem;
+    gap: 0;
+    overflow-y: auto;
+  }
+  img.hero {
     max-height: 90vh;
     max-width: 90vw;
     width: auto;
     height: auto;
+    display: block;
+    margin-top: -6vh;        /* pull image up to eat any internal top whitespace in the JPG */
   }
+
+  /* ── Loop-me: link → input + glowy button ── */
+  #loop-link-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: -3.5rem;
+  }
+  #loop-link {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    color: rgba(170, 180, 190, 0.55);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+  #loop-link:hover {
+    color: #38b6ff;
+    text-shadow: 0 0 12px rgba(56, 182, 255, 0.4);
+  }
+  #loop-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  #loop-form[hidden] { display: none; }
+  #loop-form input[type=email] {
+    background: rgba(5, 8, 15, 0.7);
+    border: 1px solid rgba(56, 182, 255, 0.18);
+    color: #e8f4ff;
+    padding: 0.6rem 0.95rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    outline: none;
+    width: 280px;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #loop-form input[type=email]:focus {
+    border-color: rgba(56, 182, 255, 0.55);
+    box-shadow: 0 0 14px rgba(56, 182, 255, 0.18), inset 0 0 0 1px rgba(56, 182, 255, 0.1);
+  }
+  #loop-form input[type=email]::placeholder { color: rgba(122, 172, 204, 0.4); }
+  @keyframes loop-breathe {
+    0%, 100% { box-shadow: 0 0 20px rgba(56,182,255,0.35), 0 0 60px rgba(56,182,255,0.15); }
+    50%      { box-shadow: 0 0 45px rgba(56,182,255,0.65), 0 0 100px rgba(56,182,255,0.3), 0 0 180px rgba(56,182,255,0.1); }
+  }
+  #loop-form button {
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: #05080f;
+    background: #38b6ff;
+    border: none;
+    padding: 0.7rem 1.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(56,182,255,0.35), 0 0 60px rgba(56,182,255,0.15);
+    animation: loop-breathe 2.8s ease-in-out infinite;
+    transition: transform 0.15s, background 0.2s;
+  }
+  #loop-form button:hover {
+    background: #5dc8ff;
+    animation: none;
+    box-shadow: 0 0 45px rgba(56,182,255,0.7), 0 0 110px rgba(56,182,255,0.35);
+    transform: translateY(-2px);
+  }
+  #loop-form button:disabled,
+  #loop-form button:disabled:hover {
+    background: rgba(120, 140, 160, 0.22);
+    color: rgba(200, 215, 230, 0.4);
+    cursor: not-allowed;
+    animation: none;
+    box-shadow: none;
+    transform: none;
+  }
+  .loop-hp { position: absolute; left: -9999px; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+  .loop-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    min-height: 1em;
+    text-align: center;
+    margin-top: 0.2rem;
+  }
+  .loop-msg.ok  { color: rgba(80, 220, 120, 0.9);  text-shadow: 0 0 8px rgba(80, 220, 120, 0.4); line-height: 1.6; }
+  .loop-msg.err { color: rgba(255, 130, 130, 0.9); text-shadow: 0 0 8px rgba(255, 80, 80, 0.35); }
 </style>
 <script data-goatcounter="https://iamsynapseonline.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
-  <img src="synapse_dark.jpg" alt="Synapse is coming.">
+  <img class="hero" src="synapse_dark.jpg" alt="Synapse is coming.">
+
+  <div id="loop-link-wrap">
+    <a href="#" id="loop-link">Keep me in the loop</a>
+    <form id="loop-form" action="https://formspree.io/f/xlgkeejw" method="POST" novalidate hidden>
+      <input type="email" name="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]{2,}" placeholder="you@somewhere.com">
+      <input type="hidden" name="_subject" value="🧠 Synapse — someone wants in the loop">
+      <input type="hidden" name="_format" value="plain">
+      <input type="text" name="_gotcha" class="loop-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button type="submit">Loop me in!</button>
+      <div id="loop-msg" class="loop-msg" aria-live="polite"></div>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      var link = document.getElementById('loop-link');
+      var form = document.getElementById('loop-form');
+      if (!link || !form) return;
+      var inp = form.querySelector('input[type=email]');
+      var btn = form.querySelector('button[type=submit]');
+      var msg = document.getElementById('loop-msg');
+
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        form.hidden = false;
+        if (inp) inp.focus();
+      });
+
+      function setMsg(cls, text) {
+        if (!msg) return;
+        msg.className = 'loop-msg' + (cls ? ' ' + cls : '');
+        msg.textContent = text;
+      }
+
+      if (inp) {
+        inp.addEventListener('input', function () { setMsg('', ''); });
+      }
+
+      // AJAX submit — stay on page, show inline brand-styled feedback
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        // inline validation (no native browser tooltip)
+        if (inp.validity.valueMissing) {
+          setMsg('err', "we're gonna need your addy...");
+          inp.focus();
+          return;
+        }
+        if (inp.validity.typeMismatch || inp.validity.patternMismatch) {
+          setMsg('err', "we're gonna need a real addy...");
+          inp.focus();
+          return;
+        }
+        var payload = new FormData(form);
+        btn.disabled = true;
+        var orig = btn.textContent;
+        btn.textContent = 'sending...';
+        if (msg) { msg.className = 'loop-msg'; msg.textContent = ''; }
+        fetch(form.action, { method: 'POST', body: payload, headers: { 'Accept': 'application/json' } })
+          .then(function (r) {
+            if (r.ok) {
+              if (msg) {
+                msg.className = 'loop-msg ok';
+                msg.innerHTML = "you are now in the loop... muahahaha!<br>stay tuned ;)";
+              }
+              inp.disabled = true; btn.disabled = true; btn.textContent = 'done';
+            } else {
+              return r.json().catch(function(){return{};}).then(function(body){
+                var err = (body.errors && body.errors[0] && body.errors[0].message) || 'try again in a moment';
+                if (msg) { msg.className = 'loop-msg err'; msg.textContent = String(err).toLowerCase(); }
+                btn.disabled = false; btn.textContent = orig;
+              });
+            }
+          })
+          .catch(function () {
+            if (msg) { msg.className = 'loop-msg err'; msg.textContent = 'connection failed'; }
+            btn.disabled = false; btn.textContent = orig;
+          });
+      });
+    })();
+  </script>
 </body>
 </html>
